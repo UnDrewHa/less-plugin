@@ -1,0 +1,34 @@
+@width: 10px;
+@width-s3: 9999px;
+@height: @width + 10px;
+@height2: @width + 20px;
+@height3: @width + 30px;
+
+.bordered {
+    width: 1000 * @width; // Нужно модифицировать метод вычисления сложной математики: 1000 - @width + 1000
+    border-top: dotted 1px black;
+    border-bottom: solid 2px black;
+}
+
+#header {
+    width: @width + 990;
+    height: @height;
+
+    .s3 & {
+        color: blueviolet;
+    }
+
+    @media (min-width: 123px) {
+        width: @width;
+    }
+}
+
+#main {
+    .bordered();
+}
+
+@media (min-width: 123px) {
+    #main {
+        width: @width;
+    }
+}
