@@ -82,8 +82,8 @@ VariableReplacerVisitor.prototype.visitRule = function (declaration) {
 
 VariableReplacerVisitor.prototype._addItemToNewRuleset = function(oldContainer, value, className) {
     let rulesetItem = null;
-    if (oldContainer instanceof this._less.tree.Declaration) {
-        rulesetItem = new this._less.tree.Declaration(oldContainer.name, value, oldContainer.important);
+    if (oldContainer instanceof this._less.tree.Rule) {
+        rulesetItem = new this._less.tree.Rule(oldContainer.name, value, oldContainer.important);
     } else if (oldContainer instanceof this._less.tree.mixin.Call) {
         rulesetItem = value;
     }
@@ -111,7 +111,7 @@ VariableReplacerVisitor.prototype._variableValueResolver = function(variable) {
 
     this._rulesetClassName = this.variables[variable.name].className;
 
-    return new this._less.tree.Variable(variable.name + this.SBBOL3_LESS_VARIABLE_POSTFIX, this._less.tree.Node.prototype.getIndex(), this._less.tree.Node.prototype.fileInfo());
+    return new this._less.tree.Variable(variable.name + this.SBBOL3_LESS_VARIABLE_POSTFIX, 0, {});
 }
 
 VariableReplacerVisitor.prototype._operationValueResolver = function(operation) {
