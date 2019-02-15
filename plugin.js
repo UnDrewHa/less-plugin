@@ -69,9 +69,9 @@ VariableReplacerVisitor.prototype.visitRule = function (declaration) {
     const expressionValueArray = lodash.get(value, 'value[0].value');
 
     if (expressionValueArray) {
-        value = new this._less.tree.Value(new this._less.tree.Expression(
+        value = new this._less.tree.Expression(
             expressionValueArray.map(item => this.valueResolvers[item.type] && this.valueResolvers[item.type](item) || item)
-        ));
+        );
     }
 
     if (this._rulesetClassName) {
@@ -83,7 +83,7 @@ VariableReplacerVisitor.prototype.visitRule = function (declaration) {
 VariableReplacerVisitor.prototype._addItemToNewRuleset = function(oldContainer, value, className) {
     let rulesetItem = null;
     if (oldContainer instanceof this._less.tree.Rule) {
-        rulesetItem = new this._less.tree.Rule(oldContainer.name, value, oldContainer.important);
+        rulesetItem = new this._less.tree.Rule(oldContainer.name, value, oldContainer.important, false, 0, {});
     } else if (oldContainer instanceof this._less.tree.mixin.Call) {
         rulesetItem = value;
     }
@@ -100,8 +100,8 @@ VariableReplacerVisitor.prototype._getSelectors = function(className) {
 
     return [
         new this._less.tree.Selector([
-            new this._less.tree.Element(new this._less.tree.Combinator(' '), '.' + newClassName),
-            new this._less.tree.Element(new this._less.tree.Combinator(' '), "&")
+            new this._less.tree.Element(new this._less.tree.Combinator(' '), '.' + newClassName, 0, {}),
+            new this._less.tree.Element(new this._less.tree.Combinator(' '), "&", 0, {})
         ])
     ];
 }
@@ -144,7 +144,7 @@ VariableReplacerVisitor.prototype._mixinCallValueResolver = function(mixinCall) 
 
         return item;
     });
-    return new this._less.tree.mixin.Call(mixinCall.selector.elements, args);
+    return new this._less.tree.mixin.Call(mixinCall.selector.elements, args, 0, {});
 }
 
 module.exports = {
