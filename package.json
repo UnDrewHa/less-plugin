@@ -10,7 +10,7 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "less": "^3.9.0",
+    "less": "^2.7.3",
     "less-plugin-inline-urls": "^1.2.0",
     "lodash": "^4.17.11"
   }
