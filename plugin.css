@@ -1,0 +1,27 @@
+.bordered {
+  width: 5px;
+  height: 2.23606798px;
+  margin: 10px 20px;
+  padding-left: 35px;
+  padding-top: 2000px;
+  padding-bottom: -50px;
+  margin-left: 500px !important;
+  color: #fc6;
+  background: #664400 url() center no-repeat / cover;
+  border-color: #80e619;
+}
+.bordered .main {
+  /*
+        * исключить использование переменных,
+        * которые идут под замену внутри миксинов, т.к. исключены из замены в плагине из-за
+        * дублирования классов .sbbol3 .sbbol3 .bordered .main {}
+        */
+  top: 910px;
+}
+.rebranding-colors .bordered {
+  color: #f93;
+  background: #331900 url() center no-repeat / cover;
+}
+.rebranding-sizes .bordered {
+  width: 1005px;
+}

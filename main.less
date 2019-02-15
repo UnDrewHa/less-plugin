@@ -1,34 +1,32 @@
-@width: 10px;
-@width-s3: 9999px;
-@height: @width + 10px;
-@height2: @width + 20px;
-@height3: @width + 30px;
+@width: 5px;
+@width-s3: 1005px;
+@orange: #fc6;
+@orange-s3: #f93;
+@green: #80e619;
+
+.foo (@w: 100, @a: 10) {
+    .main {
+        /*
+        * исключить использование переменных,
+        * которые идут под замену внутри миксинов, т.к. исключены из замены в плагине из-за
+        * дублирования классов .sbbol3 .sbbol3 .bordered .main {}
+        */
+        top: @w + @a + @width;
+    }
+}
 
 .bordered {
-    width: 1000 * @width; // Нужно модифицировать метод вычисления сложной математики: 1000 - @width + 1000
-    border-top: dotted 1px black;
-    border-bottom: solid 2px black;
-}
-
-#header {
-    width: @width + 990;
-    height: @height;
-
-    .s3 & {
-        color: blueviolet;
-    }
-
-    @media (min-width: 123px) {
-        width: @width;
-    }
-}
-
-#main {
-    .bordered();
-}
-
-@media (min-width: 123px) {
-    #main {
-        width: @width;
-    }
+    background: darken(@orange, 50%) url() center no-repeat / cover;
+    padding-left: 10px + 20px + @width;
+    width: @width;
+    height: sqrt(@width);
+    margin: 10px 20px;
+    padding-left: 10px + 20px + @width;
+    padding-top: 1000px + 1000px;
+    padding-bottom: -@width*10;
+    margin-left: @width*100 !important;
+    .foo(@width, 900);
+    color: @orange;
+    background: darken(@orange, 50%) url() center no-repeat / cover;
+    border-color: @green;
 }
