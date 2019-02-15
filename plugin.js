@@ -36,7 +36,7 @@ VariableReplacerVisitor.prototype.visitRuleset = function (ruleset) {
      * Исключаем из скоупа плагина корневой блок объявления и
      * блоки объявления, находящиеся внутри миксинов.
      */
-    this._inRule = !ruleset.root && ruleset.parent;
+    this._inRule = !ruleset.root;
 }
 
 VariableReplacerVisitor.prototype.visitRulesetOut = function (ruleset) {
@@ -61,7 +61,7 @@ VariableReplacerVisitor.prototype.visitMixinCall = function (mixinCall) {
         this._addItemToNewRuleset(mixinCall, newMixinCall, this._rulesetClassName);
     }
 },
-VariableReplacerVisitor.prototype.visitDeclaration = function (declaration) {
+VariableReplacerVisitor.prototype.visitRule = function (declaration) {
     if (!this._inRule || declaration.value instanceof this._less.tree.Anonymous) return;
 
     this._declarationName = declaration.name[0].value;
