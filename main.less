@@ -3,14 +3,34 @@
 @orange: #fc6;
 @orange-s3: #f93;
 @green: #80e619;
+@base: 4px;
+@color-white: white;
+@color-black: black;
+@color-green: @green;
+
+.box {
+    color: @orange;
+
+    .s2 & {
+        color: @green;
+    }
+}
+
+.first {
+    color: @orange;
+    .second {
+        color: @orange;
+        .third {
+            color: @orange;
+            .fourth {
+                color: @orange;
+            }
+        }
+    }
+}
 
 .foo (@w: 100, @a: 10) {
-    .main {
-        /*
-        * исключить использование переменных,
-        * которые идут под замену внутри миксинов, т.к. исключены из замены в плагине из-за
-        * дублирования классов .sbbol3 .sbbol3 .bordered .main {}
-        */
+    .inside-mixin {
         top: @w + @a + @width;
     }
 }
@@ -33,4 +53,123 @@
 
 .main {
     width: @width;
+}
+
+.row-main-nav {
+    background: @orange;
+    border: 0;
+    border-radius: @base;
+    padding: @base;
+    position: relative;
+
+    .opa & {
+        background: @orange;
+    }
+
+    .logo {
+        margin-right: @base*2;
+
+        a,
+        span {
+            padding-top: @base*2;
+            padding-bottom: @base*2;
+            display: inline-block;
+            border-radius: @base;
+            outline: none;
+
+            svg {
+                vertical-align: top;
+                height: @base*5;
+
+                * {
+                    fill: @color-white;
+                }
+            }
+        }
+        a {
+            &:hover {
+                background-color: rgba(0,0,0,0.15);
+            }
+
+            &.active {
+                background-color: @orange;
+
+                svg * {
+                    fill: @color-green;
+                }
+            }
+        }
+
+        .disabled-link {
+            pointer-events: none;
+        }
+    }
+
+    .main-nav {
+        > li {
+            float: left;
+
+            &:not(:last-child) {
+                margin-right: @base*2;
+            }
+
+            > a {
+                padding-top: @base*2;
+                padding-bottom: @base*2;
+                line-height: @base*5;
+                border-bottom: 0;
+                color: @color-white;
+                border-radius: @base;
+                outline: none;
+
+                .caret {
+                    border-top-color: inherit;
+                    border-width: @base;
+                }
+
+                &.active,
+                &.active:hover,
+                &.active:focus,
+                &:focus:hover {
+                    color: @color-black;
+                    border-color: @color-white;
+
+                    .caret {
+                        border-top-color: @color-black;
+                    }
+                }
+
+                &:hover {
+                    background-color: rgba(0,0,0,0.2);
+                }
+                &:focus {
+                    background: darken(@color-green, 10%);
+                    color: @color-white;
+                    border-color: darken(@color-green, 10%);
+                }
+            }
+        }
+    }
+
+    .badge-calendar {
+        position: absolute;
+        top: -@base*2;
+        left: 70%;
+        padding: @base @base*2;
+    }
+
+    .header-quick-links,
+    .header-icons-links {
+        display: inline-block;
+    }
+
+    + .overlay {
+        position: fixed;
+        z-index: 20;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        background: rgba(0,0,0,0.15);
+    }
 }
