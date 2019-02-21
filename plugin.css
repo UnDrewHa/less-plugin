@@ -1,12 +1,16 @@
 #m {
-  border: 5px solid #fc6;
+  border: 14px solid #fc6;
+  width: 14px;
+  color: #fc6;
 }
 .rebranding-sizes #m {
-  border: 1005px solid #fc6;
+  border: 16px solid #fc6;
+  width: 16px;
 }
 .rebranding-colors #m {
-  border: 5px solid #f93;
+  border: 14px solid #f93;
+  color: #f93;
 }
 .rebranding-sizes.rebranding-colors #m {
-  border: 1005px solid #f93;
+  border: 16px solid #f93;
 }

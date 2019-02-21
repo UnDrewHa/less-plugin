@@ -182,23 +182,22 @@ VariableReplacerVisitor.prototype.visitRule = function (rule) {
         );
         _this._rulesetClassName = null;
     } else if (mapLength > 1) {
-        for (let i = 0; i < factorial(mapLength); i++) {
-            Object.keys(_this._map).forEach(function(className) {
-                let val = new _this._less.tree.Expression(
-                    expressionValueArray.map(function(item) {
-                        return _this._getNewValueByNodeType(item, _this._map[className]);
-                    })
-                );
+        Object.keys(_this._map).forEach(function(className) {
+            let val = new _this._less.tree.Expression(
+                expressionValueArray.map(function(item) {
+                    return _this._getNewValueByNodeType(item, _this._map[className]);
+                })
+            );
 
-                _this._addItemToNewRuleset(
-                    new _this._less.tree.Rule(rule.name, val, rule.important, false, 0, rule.currentFileInfo),
-                    className
-                );
-            });
-        }
+            _this._addItemToNewRuleset(
+                new _this._less.tree.Rule(rule.name, val, rule.important, false, 0, rule.currentFileInfo),
+                className
+            );
+        });
     }
 
     _this._ruleName = null;
+    _this._map = {};
 };
 
 /**
