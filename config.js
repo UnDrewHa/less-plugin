@@ -2,12 +2,28 @@ module.exports = {
     variables: {
         "@width": {
             "className": "rebranding-sizes",
-            "props": {"width": 1}
+            "newVarName": "@width-s3",
+            "props": ["width", "margin"]
+        },
+        "@width2": {
+            "className": "rebranding-sizes",
+            "newVarName": "@width2-s3",
+            "props": ["width", "margin"]
+        },
+        "@width3": {
+            "className": "rebranding-sizes",
+            "newVarName": "@width3-s3",
+            "props": ["width", "margin"]
+        },
+        "@width4": {
+            "className": "rebranding-sizes",
+            "newVarName": "@width4-s3",
+            "props": ["width", "margin"]
         },
         "@orange": {
             "className": "rebranding-colors",
-            "props": {"color": 1, "background": 1, "background-color": 1}
+            "newVarName": "@orange-s3",
+            "props": ["color", "background", "background-color", "border"]
         }
-    },
-    postfix: '-s3'
+    }
 };

@@ -1,5 +1,11 @@
 @width: 5px;
+@width2: 6px;
+@width3: 7px;
+@width4: 8px;
 @width-s3: 1005px;
+@width2-s3: 1006px;
+@width3-s3: 1007px;
+@width4-s3: 1008px;
 @orange: #fc6;
 @orange-s3: #f93;
 @green: #80e619;
@@ -8,36 +14,18 @@
 @color-black: black;
 @color-green: @green;
 
-.box {
-    color: @orange;
+#m {
+    margin: @width @width2 @width3 @width4;
+}
 
-    .s2 & {
-        color: @green;
+.foo (@w: @width, @a: 10) {
+    .from-mixin {
+        width: @w + @a + @width;
     }
 }
 
-.first {
-    color: @orange;
-    .second {
-        color: @orange;
-        .third {
-            color: @orange;
-            .fourth {
-                color: @orange;
-            }
-        }
-    }
-}
-
-.foo (@w: 100, @a: 10) {
-    .inside-mixin {
-        top: @w + @a + @width;
-    }
-}
-
-.bordered {
-    background: darken(@orange, 50%) url('http://awfasdf.asdf/main.png') center no-repeat / cover;
-    padding-left: 10px + 20px + @width;
+.main-nav {
+    border: @width solid @orange;
     width: @width;
     height: sqrt(@width);
     margin: 10px 20px;
@@ -47,8 +35,69 @@
     margin-left: @width*100 !important;
     .foo(@width, 900);
     color: @orange;
-    background: darken(@orange, 50%) url('http://awfasdf.asdf/main.png') center no-repeat / cover;
+    background: darken(@orange, 50%) url('main.png') center no-repeat / cover;
     border-color: @green;
+
+    @media (min-width: @width) {
+        width: @width;
+        color: @orange;
+    }
+
+
+
+
+
+
+
+
+
+    .sizes & {
+        @media (min-width: @width-s3) {
+            width: @width-s3;
+            color: @green;
+
+            .colors& {
+                color: @green;
+            }
+        }
+    }
+}
+
+.bordered {
+    width: @width;
+    height: sqrt(@width);
+    margin: 10px 20px;
+    padding-left: 10px + 20px + @width;
+    padding-top: 1000px + 1000px;
+    padding-bottom: -@width*10;
+    margin-left: @width*100 !important;
+    .foo(@width, 900);
+    color: @orange;
+    background: darken(@orange, 50%) url('main.png') center no-repeat / cover;
+    border-color: @green;
+}
+
+.box {
+    .s2 & {
+        color: @green;
+    }
+}
+
+.first {
+    color: @orange;
+    border-color: @orange;
+    .second {
+        color: @orange;
+        border-color: @orange;
+        .third {
+            color: @orange;
+            border-color: @orange;
+            .fourth {
+                color: @orange;
+                border-color: @orange;
+            }
+        }
+    }
 }
 
 .main {
@@ -103,73 +152,5 @@
         .disabled-link {
             pointer-events: none;
         }
-    }
-
-    .main-nav {
-        > li {
-            float: left;
-
-            &:not(:last-child) {
-                margin-right: @base*2;
-            }
-
-            > a {
-                padding-top: @base*2;
-                padding-bottom: @base*2;
-                line-height: @base*5;
-                border-bottom: 0;
-                color: @color-white;
-                border-radius: @base;
-                outline: none;
-
-                .caret {
-                    border-top-color: inherit;
-                    border-width: @base;
-                }
-
-                &.active,
-                &.active:hover,
-                &.active:focus,
-                &:focus:hover {
-                    color: @color-black;
-                    border-color: @color-white;
-
-                    .caret {
-                        border-top-color: @color-black;
-                    }
-                }
-
-                &:hover {
-                    background-color: rgba(0,0,0,0.2);
-                }
-                &:focus {
-                    background: darken(@color-green, 10%);
-                    color: @color-white;
-                    border-color: darken(@color-green, 10%);
-                }
-            }
-        }
-    }
-
-    .badge-calendar {
-        position: absolute;
-        top: -@base*2;
-        left: 70%;
-        padding: @base @base*2;
-    }
-
-    .header-quick-links,
-    .header-icons-links {
-        display: inline-block;
-    }
-
-    + .overlay {
-        position: fixed;
-        z-index: 20;
-        top: 0;
-        right: 0;
-        bottom: 0;
-        left: 0;
-        background: rgba(0,0,0,0.15);
     }
 }
