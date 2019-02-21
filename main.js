@@ -10,7 +10,7 @@ const lessFile = fs.readFileSync('./main.less', {encoding: 'utf8'});
 
 console.time("LESS");
 
-less.render(lessFile, {plugins, sourceMap: { sourceMapFileInline: true }})
+less.render(lessFile, {plugins, sourceMap: { sourceMapFileInline: false }})
     .then(result => {
         const filePath = usePlugin ? 'plugin.css' : 'regular.css';
         console.timeEnd("LESS");

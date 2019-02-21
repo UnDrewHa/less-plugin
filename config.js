@@ -3,7 +3,7 @@ module.exports = {
         "@width": {
             "className": "rebranding-sizes",
             "newVarName": "@width-s3",
-            "props": ["width", "margin"]
+            "props": ["width", "border"]
         },
         "@width2": {
             "className": "rebranding-sizes",

@@ -1,4 +1,5 @@
 const lodash = require('lodash');
+const makeFullMap = require('./makeFullMap');
 /*
 @width: 20px; <------------- Rule
 
@@ -75,6 +76,8 @@ function VariableReplacerVisitor(less, config) {
      * @private
      */
     this._less = less;
+
+    this._map = {};
 }
 
 /**
@@ -168,12 +171,31 @@ VariableReplacerVisitor.prototype.visitRule = function (rule) {
         );
     }
 
-    if (_this._rulesetClassName) {
+    _this._map = makeFullMap(_this._map);
+
+    const mapLength = Object.keys(_this._map).length;
+
+    if (mapLength < 2 && _this._rulesetClassName) {
         _this._addItemToNewRuleset(
             new this._less.tree.Rule(rule.name, value, rule.important, false, 0, rule.currentFileInfo),
             _this._rulesetClassName
         );
         _this._rulesetClassName = null;
+    } else if (mapLength > 1) {
+        for (let i = 0; i < factorial(mapLength); i++) {
+            Object.keys(_this._map).forEach(function(className) {
+                let val = new _this._less.tree.Expression(
+                    expressionValueArray.map(function(item) {
+                        return _this._getNewValueByNodeType(item, _this._map[className]);
+                    })
+                );
+
+                _this._addItemToNewRuleset(
+                    new _this._less.tree.Rule(rule.name, val, rule.important, false, 0, rule.currentFileInfo),
+                    className
+                );
+            });
+        }
     }
 
     _this._ruleName = null;
@@ -235,24 +257,24 @@ VariableReplacerVisitor.prototype._getSelectors = function (className, currentFi
  * @param node Узел.
  * @private
  */
-VariableReplacerVisitor.prototype._getNewValueByNodeType = function (node) {
+VariableReplacerVisitor.prototype._getNewValueByNodeType = function (node, variablesArray) {
     let newValue = null;
 
     switch(node.type) {
         case 'Variable':
-            newValue = this._variableValueResolver(node);
+            newValue = this._variableValueResolver(node, variablesArray);
             break;
         case 'Operation':
-            newValue = this._operationValueResolver(node);
+            newValue = this._operationValueResolver(node, variablesArray);
             break;
         case 'Negative':
-            newValue = this._negativeValueResolver(node);
+            newValue = this._negativeValueResolver(node, variablesArray);
             break;
         case 'Call':
-            newValue = this._callValueResolver(node);
+            newValue = this._callValueResolver(node, variablesArray);
             break;
         case 'MixinCall':
-            newValue = this._mixinCallValueResolver(node);
+            newValue = this._mixinCallValueResolver(node, variablesArray);
             break;
         default:
             newValue = node;
@@ -267,16 +289,26 @@ VariableReplacerVisitor.prototype._getNewValueByNodeType = function (node) {
  * @param variable Узел типа Variable. node_modules/less/lib/less/tree/variable.js
  * @private
  */
-VariableReplacerVisitor.prototype._variableValueResolver = function (variable) {
+VariableReplacerVisitor.prototype._variableValueResolver = function (variable, variablesArray) {
     const variableConfig = this._variables[variable.name];
+
     if (
         !variableConfig ||
-        (variableConfig && variableConfig.props.indexOf(this._ruleName) === -1)
-    ) return variable;
+        (variableConfig && variableConfig.props.indexOf(this._ruleName) === -1) ||
+        variablesArray && variablesArray.indexOf(variable.name) === -1
+    ) {
+        return variable;
+    } else if (variablesArray && variablesArray.indexOf(variable.name) > -1) {
+        return new this._less.tree.Variable(variableConfig.newVarName, 0, variable.currentFileInfo);
+    } else {
+        lodash.isArray(this._map[variableConfig.className]) ?
+            this._map[variableConfig.className].push(variable.name) :
+            this._map[variableConfig.className] = [variable.name];
 
-    this._rulesetClassName = variableConfig.className;
+        this._rulesetClassName = variableConfig.className;
 
-    return new this._less.tree.Variable(variableConfig.newVarName, 0, variable.currentFileInfo);
+        return new this._less.tree.Variable(variableConfig.newVarName, 0, variable.currentFileInfo);
+    }
 };
 
 /**
@@ -285,11 +317,11 @@ VariableReplacerVisitor.prototype._variableValueResolver = function (variable) {
  * @param operation Узел типа Operation. node_modules/less/lib/less/tree/operation.js
  * @private
  */
-VariableReplacerVisitor.prototype._operationValueResolver = function (operation) {
+VariableReplacerVisitor.prototype._operationValueResolver = function (operation, variablesArray) {
     const _this = this;
 
     const operands = operation.operands.map(function(operand) {
-        return _this._getNewValueByNodeType(operand);
+        return _this._getNewValueByNodeType(operand, variablesArray);
     });
 
     return new _this._less.tree.Operation(operation.op, operands);
@@ -301,8 +333,8 @@ VariableReplacerVisitor.prototype._operationValueResolver = function (operation)
  * @param negative Узел типа Negative. node_modules/less/lib/less/tree/negative.js
  * @private
  */
-VariableReplacerVisitor.prototype._negativeValueResolver = function (negative) {
-    return new this._less.tree.Negative(this._getNewValueByNodeType(negative.value));
+VariableReplacerVisitor.prototype._negativeValueResolver = function (negative, variablesArray) {
+    return new this._less.tree.Negative(this._getNewValueByNodeType(negative.value, variablesArray));
 };
 
 /**
@@ -311,11 +343,11 @@ VariableReplacerVisitor.prototype._negativeValueResolver = function (negative) {
  * @param call Узел типа Call. node_modules/less/lib/less/tree/call.js
  * @private
  */
-VariableReplacerVisitor.prototype._callValueResolver = function (call) {
+VariableReplacerVisitor.prototype._callValueResolver = function (call, variablesArray) {
     const _this = this;
 
     const args = call.args.map(function(arg) {
-        return _this._getNewValueByNodeType(arg);
+        return _this._getNewValueByNodeType(arg, variablesArray);
     });
 
     return new _this._less.tree.Call(call.name, args);
@@ -327,7 +359,7 @@ VariableReplacerVisitor.prototype._callValueResolver = function (call) {
  * @param mixinCall Узел типа MixinCall. node_modules/less/lib/less/tree/mixin-call.js
  * @private
  */
-VariableReplacerVisitor.prototype._mixinCallValueResolver = function (mixinCall) {
+VariableReplacerVisitor.prototype._mixinCallValueResolver = function (mixinCall, variablesArray) {
     const _this = this;
 
     const args = mixinCall.arguments.map(function(item) {
@@ -337,7 +369,7 @@ VariableReplacerVisitor.prototype._mixinCallValueResolver = function (mixinCall)
                 ...item,
                 value: new _this._less.tree.Expression(
                     exprValue.map(function(item) {
-                        return _this._getNewValueByNodeType(item);
+                        return _this._getNewValueByNodeType(item, variablesArray);
                     })
                 )
             };
@@ -348,5 +380,15 @@ VariableReplacerVisitor.prototype._mixinCallValueResolver = function (mixinCall)
 
     return new _this._less.tree.mixin.Call(mixinCall.selector.elements, args, 0, mixinCall.currentFileInfo);
 };
+
+function factorial(n) {
+    let result = 1;
+
+    while (n){
+        result *= n--;
+    }
+
+    return result;
+}
 
 module.exports = VariableReplacerVisitor;

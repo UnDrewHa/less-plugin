@@ -15,142 +15,142 @@
 @color-green: @green;
 
 #m {
-    margin: @width @width2 @width3 @width4;
-}
-
-.foo (@w: @width, @a: 10) {
-    .from-mixin {
-        width: @w + @a + @width;
-    }
-}
-
-.main-nav {
     border: @width solid @orange;
-    width: @width;
-    height: sqrt(@width);
-    margin: 10px 20px;
-    padding-left: 10px + 20px + @width;
-    padding-top: 1000px + 1000px;
-    padding-bottom: -@width*10;
-    margin-left: @width*100 !important;
-    .foo(@width, 900);
-    color: @orange;
-    background: darken(@orange, 50%) url('main.png') center no-repeat / cover;
-    border-color: @green;
-
-    @media (min-width: @width) {
-        width: @width;
-        color: @orange;
-    }
-
-
-
-
-
-
-
-
-
-    .sizes & {
-        @media (min-width: @width-s3) {
-            width: @width-s3;
-            color: @green;
-
-            .colors& {
-                color: @green;
-            }
-        }
-    }
 }
 
-.bordered {
-    width: @width;
-    height: sqrt(@width);
-    margin: 10px 20px;
-    padding-left: 10px + 20px + @width;
-    padding-top: 1000px + 1000px;
-    padding-bottom: -@width*10;
-    margin-left: @width*100 !important;
-    .foo(@width, 900);
-    color: @orange;
-    background: darken(@orange, 50%) url('main.png') center no-repeat / cover;
-    border-color: @green;
-}
+// .foo (@w: @width, @a: 10) {
+//     .from-mixin {
+//         width: @w + @a + @width;
+//     }
+// }
 
-.box {
-    .s2 & {
-        color: @green;
-    }
-}
+// .main-nav {
+//     border: @width solid @orange;
+//     width: @width;
+//     height: sqrt(@width);
+//     margin: 10px 20px;
+//     padding-left: 10px + 20px + @width;
+//     padding-top: 1000px + 1000px;
+//     padding-bottom: -@width*10;
+//     margin-left: @width*100 !important;
+//     .foo(@width, 900);
+//     color: @orange;
+//     background: darken(@orange, 50%) url('main.png') center no-repeat / cover;
+//     border-color: @green;
 
-.first {
-    color: @orange;
-    border-color: @orange;
-    .second {
-        color: @orange;
-        border-color: @orange;
-        .third {
-            color: @orange;
-            border-color: @orange;
-            .fourth {
-                color: @orange;
-                border-color: @orange;
-            }
-        }
-    }
-}
+//     @media (min-width: @width) {
+//         width: @width;
+//         color: @orange;
+//     }
 
-.main {
-    width: @width;
-}
 
-.row-main-nav {
-    background: @orange;
-    border: 0;
-    border-radius: @base;
-    padding: @base;
-    position: relative;
 
-    .opa & {
-        background: @orange;
-    }
 
-    .logo {
-        margin-right: @base*2;
 
-        a,
-        span {
-            padding-top: @base*2;
-            padding-bottom: @base*2;
-            display: inline-block;
-            border-radius: @base;
-            outline: none;
 
-            svg {
-                vertical-align: top;
-                height: @base*5;
 
-                * {
-                    fill: @color-white;
-                }
-            }
-        }
-        a {
-            &:hover {
-                background-color: rgba(0,0,0,0.15);
-            }
 
-            &.active {
-                background-color: @orange;
 
-                svg * {
-                    fill: @color-green;
-                }
-            }
-        }
+//     .sizes & {
+//         @media (min-width: @width-s3) {
+//             width: @width-s3;
+//             color: @green;
 
-        .disabled-link {
-            pointer-events: none;
-        }
-    }
-}
+//             .colors& {
+//                 color: @green;
+//             }
+//         }
+//     }
+// }
+
+// .bordered {
+//     width: @width;
+//     height: sqrt(@width);
+//     margin: 10px 20px;
+//     padding-left: 10px + 20px + @width;
+//     padding-top: 1000px + 1000px;
+//     padding-bottom: -@width*10;
+//     margin-left: @width*100 !important;
+//     .foo(@width, 900);
+//     color: @orange;
+//     background: darken(@orange, 50%) url('main.png') center no-repeat / cover;
+//     border-color: @green;
+// }
+
+// .box {
+//     .s2 & {
+//         color: @green;
+//     }
+// }
+
+// .first {
+//     color: @orange;
+//     border-color: @orange;
+//     .second {
+//         color: @orange;
+//         border-color: @orange;
+//         .third {
+//             color: @orange;
+//             border-color: @orange;
+//             .fourth {
+//                 color: @orange;
+//                 border-color: @orange;
+//             }
+//         }
+//     }
+// }
+
+// .main {
+//     width: @width;
+// }
+
+// .row-main-nav {
+//     background: @orange;
+//     border: 0;
+//     border-radius: @base;
+//     padding: @base;
+//     position: relative;
+
+//     .opa & {
+//         background: @orange;
+//     }
+
+//     .logo {
+//         margin-right: @base*2;
+
+//         a,
+//         span {
+//             padding-top: @base*2;
+//             padding-bottom: @base*2;
+//             display: inline-block;
+//             border-radius: @base;
+//             outline: none;
+
+//             svg {
+//                 vertical-align: top;
+//                 height: @base*5;
+
+//                 * {
+//                     fill: @color-white;
+//                 }
+//             }
+//         }
+//         a {
+//             &:hover {
+//                 background-color: rgba(0,0,0,0.15);
+//             }
+
+//             &.active {
+//                 background-color: @orange;
+
+//                 svg * {
+//                     fill: @color-green;
+//                 }
+//             }
+//         }
+
+//         .disabled-link {
+//             pointer-events: none;
+//         }
+//     }
+// }
