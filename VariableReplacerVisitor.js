@@ -1,5 +1,6 @@
-const lodash = require('lodash');
-const makeFullMap = require('./makeFullMap');
+var lodash = require('lodash');
+var makeFullMap = require('./makeFullMap');
+
 /*
 @width: 20px; <------------- Rule
 
@@ -24,7 +25,7 @@ sqrt(@width); <------------- Call(Variable)
 
  */
 function VariableReplacerVisitor(less, config) {
-    const visitorConfig = config || {};
+    var visitorConfig = config || {};
 
     /**
      * Флаг, означающий, что данный Visitor работает именно с less кодом до его компиляции в css.
@@ -57,11 +58,6 @@ function VariableReplacerVisitor(less, config) {
      */
     this._insideMixinDefinition = false;
     /**
-     * Название класса, для которого собирается новый Ruleset.
-     * @private
-     */
-    this._rulesetClassName = null;
-    /**
      * Название свойства, для которого происходит поиск переменной на замену.
      * @private
      */
@@ -77,7 +73,7 @@ function VariableReplacerVisitor(less, config) {
      */
     this._less = less;
 
-    this._map = {};
+    this._classNamesMap = {};
 }
 
 /**
@@ -95,7 +91,7 @@ VariableReplacerVisitor.prototype.run = function (rootNode) {
  * @param ruleset Блок объявления. node_modules/less/lib/less/tree/ruleset.js
  */
 VariableReplacerVisitor.prototype.visitRuleset = function (ruleset) {
-    const _this = this;
+    var _this = this;
     /**
      * Данный метод срабатывает и для корневого узла, поэтому флаг _insideRuleset вычисляем на
      * основе наличия свойства root, чтобы в дальнейшем обрабатывать узлы типа Rule только внутри узлов Ruleset.
@@ -106,7 +102,6 @@ VariableReplacerVisitor.prototype.visitRuleset = function (ruleset) {
         _this._appendNewRulesets(_this._prevRule);
 
         _this._newRulesetsByClassName = {};
-        _this._rulesetClassName = null;
     }
 
     this._prevRule = !ruleset.root ? ruleset : null;
@@ -118,7 +113,7 @@ VariableReplacerVisitor.prototype.visitRuleset = function (ruleset) {
  * @param ruleset Блок объявления. node_modules/less/lib/less/tree/ruleset.js
  */
 VariableReplacerVisitor.prototype.visitRulesetOut = function (ruleset) {
-    const _this = this;
+    var _this = this;
 
     if (_this._prevRule) {
         _this._appendNewRulesets(ruleset);
@@ -126,7 +121,6 @@ VariableReplacerVisitor.prototype.visitRulesetOut = function (ruleset) {
 
     _this._prevRule = null;
     _this._newRulesetsByClassName = {};
-    _this._rulesetClassName = null;
 };
 
 /**
@@ -138,11 +132,29 @@ VariableReplacerVisitor.prototype.visitMixinCall = function (mixinCall) {
     return; //TODO: Под вопросом обработка миксинов внутри Ruleset
     if (!this._insideRuleset) return;
 
-    const newMixinCall = this._mixinCallValueResolver(mixinCall);
+    var newMixinCall = this._mixinCallValueResolver(mixinCall);
 
     if (this._rulesetClassName) {
         this._addItemToNewRuleset(newMixinCall, this._rulesetClassName);
     }
+};
+
+/**
+ * Начало обхода узла с типом MixinDefinition.
+ *
+ * @param mixinDefinition Блок объявления миксина. node_modules/less/lib/less/tree/mixin-definition.js
+ */
+VariableReplacerVisitor.prototype.visitMixinDefinition = function (mixinDefinition) {
+    this._insideMixinDefinition = true;
+};
+
+/**
+ * Завершение обхода узла с типом MixinDefinition.
+ *
+ * @param mixinDefinition Блок объявления миксина. node_modules/less/lib/less/tree/mixin-definition.js
+ */
+VariableReplacerVisitor.prototype.visitMixinDefinitionOut = function (mixinDefinition) {
+    this._insideMixinDefinition = false;
 };
 
 /**
@@ -157,35 +169,37 @@ VariableReplacerVisitor.prototype.visitRule = function (rule) {
         rule.value instanceof this._less.tree.Anonymous
     ) return;
 
-    const _this = this;
+    var _this = this;
 
     _this._ruleName = rule.name[0].value;
-    let value = rule.value;
-    const expressionValueArray = lodash.get(value, 'value[0].value');
+    var newRuleValue = rule.value;
+    var expressionValues = lodash.get(rule.value, 'value[0].value');
 
-    if (expressionValueArray) {
-        value = new _this._less.tree.Expression(
-            expressionValueArray.map(function(item) {
-                return _this._getNewValueByNodeType(item);
-            })
-        );
+    if (!lodash.isArray(expressionValues)) {
+        return;
     }
 
-    _this._map = makeFullMap(_this._map);
+    newRuleValue = new _this._less.tree.Expression(
+        expressionValues.map(function(item) {
+            return _this._getNewValueByNodeType(item);
+        })
+    );
 
-    const mapLength = Object.keys(_this._map).length;
+    var mapLength = Object.keys(_this._classNamesMap).length;
 
-    if (mapLength < 2 && _this._rulesetClassName) {
+    if (mapLength === 1) {
         _this._addItemToNewRuleset(
-            new this._less.tree.Rule(rule.name, value, rule.important, false, 0, rule.currentFileInfo),
-            _this._rulesetClassName
+            new this._less.tree.Rule(rule.name, newRuleValue, rule.important, false, 0, rule.currentFileInfo),
+            Object.keys(_this._classNamesMap)[0]
         );
-        _this._rulesetClassName = null;
-    } else if (mapLength > 1) {
-        Object.keys(_this._map).forEach(function(className) {
-            let val = new _this._less.tree.Expression(
-                expressionValueArray.map(function(item) {
-                    return _this._getNewValueByNodeType(item, _this._map[className]);
+    } else if (mapLength > 1 && lodash.isArray(expressionValues)) {
+        _this._classNamesMap = makeFullMap(_this._classNamesMap);
+
+        Object.keys(_this._classNamesMap).forEach(function(className) {
+            _this._variablesArray = _this._classNamesMap[className];
+            var val = new _this._less.tree.Expression(
+                expressionValues.map(function(item) {
+                    return _this._getNewValueByNodeType(item);
                 })
             );
 
@@ -196,8 +210,9 @@ VariableReplacerVisitor.prototype.visitRule = function (rule) {
         });
     }
 
+    this._variablesArray = null;
     _this._ruleName = null;
-    _this._map = {};
+    _this._classNamesMap = {};
 };
 
 /**
@@ -207,11 +222,11 @@ VariableReplacerVisitor.prototype.visitRule = function (rule) {
  * @private
  */
 VariableReplacerVisitor.prototype._appendNewRulesets = function (ruleset) {
-    const _this = this;
-    const placeToInsert = lodash.findIndex(ruleset.rules, function(item) {return item instanceof _this._less.tree.Ruleset});
+    var _this = this;
+    var placeToInsert = lodash.findIndex(ruleset.rules, function(item) {return item instanceof _this._less.tree.Ruleset});
 
     Object.keys(_this._newRulesetsByClassName).map(function(className) {
-        const newRuleset = new _this._less.tree.Ruleset(_this._getSelectors(className, ruleset.selectors[0].currentFileInfo), _this._newRulesetsByClassName[className]);
+        var newRuleset = new _this._less.tree.Ruleset(_this._getSelectors(className, ruleset.selectors[0].currentFileInfo), _this._newRulesetsByClassName[className]);
 
         ruleset.rules.splice(placeToInsert || ruleset.rules.length, 0, newRuleset);
     });
@@ -240,7 +255,7 @@ VariableReplacerVisitor.prototype._addItemToNewRuleset = function (item, classNa
  * @private
  */
 VariableReplacerVisitor.prototype._getSelectors = function (className, currentFileInfo) {
-    const newClassName = className.indexOf('.') === 0 ? className.slice(1) : className;
+    var newClassName = className.indexOf('.') === 0 ? className.slice(1) : className;
 
     return [
         new this._less.tree.Selector([
@@ -256,24 +271,24 @@ VariableReplacerVisitor.prototype._getSelectors = function (className, currentFi
  * @param node Узел.
  * @private
  */
-VariableReplacerVisitor.prototype._getNewValueByNodeType = function (node, variablesArray) {
-    let newValue = null;
+VariableReplacerVisitor.prototype._getNewValueByNodeType = function (node) {
+    var newValue = null;
 
     switch(node.type) {
         case 'Variable':
-            newValue = this._variableValueResolver(node, variablesArray);
+            newValue = this._variableValueResolver(node);
             break;
         case 'Operation':
-            newValue = this._operationValueResolver(node, variablesArray);
+            newValue = this._operationValueResolver(node);
             break;
         case 'Negative':
-            newValue = this._negativeValueResolver(node, variablesArray);
+            newValue = this._negativeValueResolver(node);
             break;
         case 'Call':
-            newValue = this._callValueResolver(node, variablesArray);
+            newValue = this._callValueResolver(node);
             break;
         case 'MixinCall':
-            newValue = this._mixinCallValueResolver(node, variablesArray);
+            newValue = this._mixinCallValueResolver(node);
             break;
         default:
             newValue = node;
@@ -288,23 +303,21 @@ VariableReplacerVisitor.prototype._getNewValueByNodeType = function (node, varia
  * @param variable Узел типа Variable. node_modules/less/lib/less/tree/variable.js
  * @private
  */
-VariableReplacerVisitor.prototype._variableValueResolver = function (variable, variablesArray) {
-    const variableConfig = this._variables[variable.name];
+VariableReplacerVisitor.prototype._variableValueResolver = function (variable) {
+    var variableConfig = this._variables[variable.name];
 
     if (
         !variableConfig ||
         (variableConfig && variableConfig.props.indexOf(this._ruleName) === -1) ||
-        variablesArray && variablesArray.indexOf(variable.name) === -1
+        this._variablesArray && this._variablesArray.indexOf(variable.name) === -1
     ) {
         return variable;
-    } else if (variablesArray && variablesArray.indexOf(variable.name) > -1) {
+    } else if (this._variablesArray && this._variablesArray.indexOf(variable.name) > -1) {
         return new this._less.tree.Variable(variableConfig.newVarName, 0, variable.currentFileInfo);
     } else {
-        lodash.isArray(this._map[variableConfig.className]) ?
-            this._map[variableConfig.className].push(variable.name) :
-            this._map[variableConfig.className] = [variable.name];
-
-        this._rulesetClassName = variableConfig.className;
+        lodash.isArray(this._classNamesMap[variableConfig.className]) ?
+            this._classNamesMap[variableConfig.className].push(variable.name) :
+            this._classNamesMap[variableConfig.className] = [variable.name];
 
         return new this._less.tree.Variable(variableConfig.newVarName, 0, variable.currentFileInfo);
     }
@@ -316,11 +329,11 @@ VariableReplacerVisitor.prototype._variableValueResolver = function (variable, v
  * @param operation Узел типа Operation. node_modules/less/lib/less/tree/operation.js
  * @private
  */
-VariableReplacerVisitor.prototype._operationValueResolver = function (operation, variablesArray) {
-    const _this = this;
+VariableReplacerVisitor.prototype._operationValueResolver = function (operation) {
+    var _this = this;
 
-    const operands = operation.operands.map(function(operand) {
-        return _this._getNewValueByNodeType(operand, variablesArray);
+    var operands = operation.operands.map(function(operand) {
+        return _this._getNewValueByNodeType(operand);
     });
 
     return new _this._less.tree.Operation(operation.op, operands);
@@ -332,8 +345,8 @@ VariableReplacerVisitor.prototype._operationValueResolver = function (operation,
  * @param negative Узел типа Negative. node_modules/less/lib/less/tree/negative.js
  * @private
  */
-VariableReplacerVisitor.prototype._negativeValueResolver = function (negative, variablesArray) {
-    return new this._less.tree.Negative(this._getNewValueByNodeType(negative.value, variablesArray));
+VariableReplacerVisitor.prototype._negativeValueResolver = function (negative) {
+    return new this._less.tree.Negative(this._getNewValueByNodeType(negative.value));
 };
 
 /**
@@ -342,11 +355,11 @@ VariableReplacerVisitor.prototype._negativeValueResolver = function (negative, v
  * @param call Узел типа Call. node_modules/less/lib/less/tree/call.js
  * @private
  */
-VariableReplacerVisitor.prototype._callValueResolver = function (call, variablesArray) {
-    const _this = this;
+VariableReplacerVisitor.prototype._callValueResolver = function (call) {
+    var _this = this;
 
-    const args = call.args.map(function(arg) {
-        return _this._getNewValueByNodeType(arg, variablesArray);
+    var args = call.args.map(function(arg) {
+        return _this._getNewValueByNodeType(arg);
     });
 
     return new _this._less.tree.Call(call.name, args);
@@ -358,17 +371,17 @@ VariableReplacerVisitor.prototype._callValueResolver = function (call, variables
  * @param mixinCall Узел типа MixinCall. node_modules/less/lib/less/tree/mixin-call.js
  * @private
  */
-VariableReplacerVisitor.prototype._mixinCallValueResolver = function (mixinCall, variablesArray) {
-    const _this = this;
+VariableReplacerVisitor.prototype._mixinCallValueResolver = function (mixinCall) {
+    var _this = this;
 
-    const args = mixinCall.arguments.map(function(item) {
-        const exprValue = lodash.get(item, 'value.value');
+    var args = mixinCall.arguments.map(function(item) {
+        var exprValue = lodash.get(item, 'value.value');
         if (exprValue) {
             item = {
                 ...item,
                 value: new _this._less.tree.Expression(
                     exprValue.map(function(item) {
-                        return _this._getNewValueByNodeType(item, variablesArray);
+                        return _this._getNewValueByNodeType(item);
                     })
                 )
             };
@@ -379,15 +392,5 @@ VariableReplacerVisitor.prototype._mixinCallValueResolver = function (mixinCall,
 
     return new _this._less.tree.mixin.Call(mixinCall.selector.elements, args, 0, mixinCall.currentFileInfo);
 };
-
-function factorial(n) {
-    let result = 1;
-
-    while (n){
-        result *= n--;
-    }
-
-    return result;
-}
 
 module.exports = VariableReplacerVisitor;

@@ -34,20 +34,55 @@
     background: darken(@orange, 50%) url('main.png') center no-repeat / cover;
     border-color: @green;
 
+    .rebranding-sizes & {
+        border: @width-s3 solid @orange;
+        width: @width-s3;
+    }
+
+    .rebranding-colors & {
+        border: @width solid @orange-s3;
+        color: @orange-s3;
+        background: darken(@orange-s3, 50%) url('main.png') center no-repeat / cover;
+    }
+
+    .rebranding-sizes.rebranding-colors & {
+        border: @width-s3 solid @orange-s3;
+    }
+
     @media (min-width: @width) {
         width: @width;
         color: @orange;
+
+        .rebranding-sizes & {
+            width: @width-s3;
+        }
+
+        .rebranding-colors & {
+            color: @orange-s3;
+        }
     }
 }
 
 .first {
     color: @orange;
+    .rebranding-colors & {
+        color: @orange-s3;
+    }
     .second {
         color: @orange;
+        .rebranding-colors & {
+            color: @orange-s3;
+        }
         .third {
             color: @orange;
+            .rebranding-colors & {
+                color: @orange-s3;
+            }
             .fourth {
                 color: @orange;
+                .rebranding-colors & {
+                    color: @orange-s3;
+                }
             }
         }
     }
@@ -60,8 +95,16 @@
     padding: @base;
     position: relative;
 
+    .rebranding-colors & {
+        background: @orange-s3;
+    }
+
     .opa & {
         background: @orange;
+
+        .rebranding-colors & {
+            background: @orange-s3;
+        }
     }
 
     .logo {
@@ -91,6 +134,9 @@
 
             &.active {
                 background-color: @orange;
+                .rebranding-colors & {
+                    background-color: @orange-s3;
+                }
 
                 svg * {
                     fill: @color-green;

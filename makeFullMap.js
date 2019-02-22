@@ -1,31 +1,41 @@
-const map = {
-    "a": [1],
-    "b": [2],
-    "c": [3],
-    "d": [4]
-};
+/*
+До:
+{
+    'a': [1],
+    'b': [2],
+    'c': [3]
+}
 
-
-function makeFullMap (map) {
-    let result = {};
-    let flat = ["", []];
+После:
+{
+    'a': [1],
+    'b': [2],
+    'c': [3],
+    'a.b': [1, 2],
+    'a.c': [1, 3],
+    'b.c': [2, 3],
+    'a.b.c': [1, 2, 3]
+}
+ */
+/**
+ * Построение полной карты названий css-классов - списка переменных для замены для конкретного класса.
+ */
+module.exports = function makeFullMap (map) {
+    let combinations = {};
+    let allInOne = ["", []];
 
     Object.keys(map).forEach((key, index, array) => {
-        flat[0] += index === 0 ? key : "." + key;
-        flat[1] = flat[1].concat(map[key]);
-    })
+        allInOne[0] += index === 0 ? key : "." + key;
+        allInOne[1] = allInOne[1].concat(map[key]);
 
-    Object.keys(map).forEach((key, index, array) => {
-         for (let i = index + 1; i < array.length; i++) {
-            result[[key, array[i]].join('.')] = [].concat(map[key], map[array[i]]);
-         }
+        for (let i = index + 1; i < array.length; i++) {
+            combinations[[key, array[i]].join('.')] = [].concat(map[key], map[array[i]]);
+        }
     });
 
     return {
         ...map,
-        ...result,
-        [flat[0]]: flat[1]
+        ...combinations,
+        [allInOne[0]]: allInOne[1]
     };
-}
-
-module.exports = makeFullMap;
+};

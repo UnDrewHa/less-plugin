@@ -1,20 +1,115 @@
-.bordered {
-  width: 5px;
-  height: 2.23606798px;
+.main-nav {
+  border: 14px solid #fc6;
+  width: 14px;
+  height: 3.74165739px;
   margin: 10px 20px;
-  padding-left: 35px;
+  padding-left: 44px;
   padding-top: 2000px;
-  padding-bottom: -50px;
-  margin-left: 500px !important;
+  padding-bottom: -140px;
+  margin-left: 1400px !important;
   color: #fc6;
-  background: #664400 url() center no-repeat / cover;
+  background: #664400 url('main.png') center no-repeat / cover;
   border-color: #80e619;
 }
-.bordered .main {
-  /*
-        * исключить использование переменных,
-        * которые идут под замену внутри миксинов, т.к. исключены из замены в плагине из-за
-        * дублирования классов .sbbol3 .sbbol3 .bordered .main {}
-        */
-  top: 910px;
+.main-nav .from-mixin {
+  width: 928px;
+}
+.rebranding-sizes .main-nav {
+  border: 16px solid #fc6;
+  width: 16px;
+}
+.rebranding-colors .main-nav {
+  border: 14px solid #f93;
+  color: #f93;
+  background: #331900 url('main.png') center no-repeat / cover;
+}
+.rebranding-sizes.rebranding-colors .main-nav {
+  border: 16px solid #f93;
+}
+@media (min-width: 14px) {
+  .main-nav {
+    width: 14px;
+    color: #fc6;
+  }
+  .rebranding-sizes .main-nav {
+    width: 16px;
+  }
+  .rebranding-colors .main-nav {
+    color: #f93;
+  }
+}
+.first {
+  color: #fc6;
+}
+.rebranding-colors .first {
+  color: #f93;
+}
+.first .second {
+  color: #fc6;
+}
+.rebranding-colors .first .second {
+  color: #f93;
+}
+.first .second .third {
+  color: #fc6;
+}
+.rebranding-colors .first .second .third {
+  color: #f93;
+}
+.first .second .third .fourth {
+  color: #fc6;
+}
+.rebranding-colors .first .second .third .fourth {
+  color: #f93;
+}
+.row-main-nav {
+  background: #fc6;
+  border: 0;
+  border-radius: 4px;
+  padding: 4px;
+  position: relative;
+}
+.rebranding-colors .row-main-nav {
+  background: #f93;
+}
+.opa .row-main-nav {
+  background: #fc6;
+}
+.rebranding-colors .opa .row-main-nav {
+  background: #f93;
+}
+.row-main-nav .logo {
+  margin-right: 8px;
+}
+.row-main-nav .logo a,
+.row-main-nav .logo span {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  display: inline-block;
+  border-radius: 4px;
+  outline: none;
+}
+.row-main-nav .logo a svg,
+.row-main-nav .logo span svg {
+  vertical-align: top;
+  height: 20px;
+}
+.row-main-nav .logo a svg *,
+.row-main-nav .logo span svg * {
+  fill: white;
+}
+.row-main-nav .logo a:hover {
+  background-color: rgba(0, 0, 0, 0.15);
+}
+.row-main-nav .logo a.active {
+  background-color: #fc6;
+}
+.rebranding-colors .row-main-nav .logo a.active {
+  background-color: #f93;
+}
+.row-main-nav .logo a.active svg * {
+  fill: #80e619;
+}
+.row-main-nav .logo .disabled-link {
+  pointer-events: none;
 }
